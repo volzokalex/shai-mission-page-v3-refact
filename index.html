@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=393, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Shai — Mission page v3 · reels hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Jersey+25&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --primary-50:  #FFF6EC;
+  --primary-100: #FFEAD0;
+  --primary-200: #FFCA95;
+  --primary-300: #FFA659;
+  --primary-400: #FA8A20;
+  --primary-500: #EC6E00;
+  --primary-600: #C85A00;
+  --primary-700: #A04A00;
+  --primary-800: #782F00;
+  --primary-900: #4F1C00;
+
+  --neutral-0:   #FFFFFF;
+  --neutral-50:  #FAF8F3;
+  --neutral-100: #F5F2EB;
+  --neutral-200: #E0DDD7;
+  --neutral-300: #CFC9B5;
+  --neutral-400: #968D73;
+  --neutral-500: #706954;
+  --neutral-600: #504A3A;
+  --neutral-700: #332F25;
+  --neutral-800: #1A1408;
+  --neutral-900: #060606;
+
+  --success-500: #0D9D6E;
+  --success-600: #0B8560;
+
+  --ivory:       #FFFAEB;
+
+  --surface-canvas: var(--neutral-50);
+
+  --text-primary:  #060606;
+  --text-body:     #332F25;
+  --text-tertiary: #968D73;
+
+  --border-subtle: rgba(26,20,8,0.08);
+
+  --radius-md: 16px;
+
+  --shadow-cta-stack: 0 6px 0 0 #A04A00;
+
+  --font-display: 'Manrope', system-ui, sans-serif;
+  --font-body:    'Inter', system-ui, sans-serif;
+
+  --hero-full: 600px;
+  --hero-min:  96px;
+}
+
+/* Responsive hero height — keep title + meta + artifact + CTA visible without scroll */
+@media (max-height: 900px) {
+  :root { --hero-full: 540px; }
+}
+@media (max-height: 780px) {
+  :root { --hero-full: 470px; }
+}
+@media (max-height: 680px) {
+  :root { --hero-full: 400px; }
+}
+@media (max-height: 580px) {
+  :root { --hero-full: 340px; }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  font-family: var(--font-body);
+  background: var(--surface-canvas);
+  color: var(--text-body);
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+html { overflow: hidden; }
+
+body {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.phone {
+  width: 100%;
+  max-width: 600px;
+  height: 100dvh;
+  background: var(--surface-canvas);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollable content area above the sticky CTA */
+.screen {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: calc(165px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  min-height: 0;
+  overscroll-behavior: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+.screen { scrollbar-width: none; }
+
+/* ---------- Hero preview ---------- */
+
+.hero {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: calc(var(--hero-full) - (var(--hero-full) - var(--hero-min)) * var(--scroll-progress, 0));
+  margin-bottom: calc((var(--hero-full) - var(--hero-min)) * var(--scroll-progress, 0));
+  background: var(--surface-canvas);
+  padding: 10px 10px 10px;
+  box-sizing: border-box;
+  overflow: visible;
+  display: flex;
+  z-index: 2;
+}
+
+.hero-screen {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  background: #1E1713;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 6px 0 0 var(--neutral-400),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Solid overlay fades in as hero collapses — interpolates gradient → solid black continuously */
+.hero-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #1E1713;
+  opacity: var(--scroll-progress, 0);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- Reels carousel inside hero ---------- */
+
+.reel-slider {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  opacity: calc(1 - var(--scroll-progress, 0));
+  z-index: 1;
+}
+.reel-slider::-webkit-scrollbar { display: none; }
+
+.reel-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Slide 3: pixel text mission brief.
+   Rule: text MUST fit within block. Top padding clears back-btn (~66px from viewport top),
+   bottom padding keeps content off the block edge. Fonts scale with hero height. */
+.reel-slide.text {
+  padding: 64px 26px 24px;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  color: var(--ivory);
+  font-family: 'Jersey 25', var(--font-display);
+  font-weight: 400;
+  align-items: stretch;
+  overflow: hidden;
+}
+.reel-slide.text .brief-heading {
+  font-family: 'Jersey 25', var(--font-display);
+  font-size: 28px;
+  line-height: 1.1;
+  color: var(--primary-500);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.reel-slide.text .brief-body {
+  font-size: 23px;
+  line-height: 1.22;
+  color: rgba(255, 250, 235, 0.92);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.reel-slide.text .brief-subheading {
+  font-size: 26px;
+  line-height: 1.2;
+  color: var(--primary-500);
+  margin-top: 2px;
+}
+.reel-slide.text .brief-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.reel-slide.text .brief-list li {
+  font-size: 22px;
+  line-height: 1.22;
+  color: rgba(255, 250, 235, 0.95);
+  padding-left: 18px;
+  position: relative;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.reel-slide.text .brief-list li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--primary-500);
+}
+@media (max-height: 900px) {
+  .reel-slide.text { padding: 60px 24px 22px; gap: 9px; }
+  .reel-slide.text .brief-heading { font-size: 25px; }
+  .reel-slide.text .brief-body { font-size: 20px; }
+  .reel-slide.text .brief-subheading { font-size: 23px; }
+  .reel-slide.text .brief-list li { font-size: 19px; }
+}
+@media (max-height: 780px) {
+  .reel-slide.text { padding: 58px 22px 20px; gap: 8px; }
+  .reel-slide.text .brief-heading { font-size: 22px; }
+  .reel-slide.text .brief-body { font-size: 17px; line-height: 1.2; }
+  .reel-slide.text .brief-subheading { font-size: 20px; }
+  .reel-slide.text .brief-list li { font-size: 16px; line-height: 1.2; padding-left: 14px; }
+  .reel-slide.text .brief-list { gap: 4px; }
+}
+@media (max-height: 680px) {
+  .reel-slide.text { padding: 54px 20px 18px; gap: 7px; }
+  .reel-slide.text .brief-heading { font-size: 19px; }
+  .reel-slide.text .brief-body { font-size: 15px; line-height: 1.18; }
+  .reel-slide.text .brief-subheading { font-size: 17px; }
+  .reel-slide.text .brief-list li { font-size: 14px; line-height: 1.18; padding-left: 12px; }
+  .reel-slide.text .brief-list { gap: 3px; }
+}
+
+/* Slide 2: real image, fills the slide */
+.reel-slide.image { background: #0f0c0a; }
+.reel-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0f0c0a;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.image-caption {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 44px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--ivory);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  z-index: 1;
+}
+
+/* Slide 1: video — fills slide, with play/pause overlay + pixel sound toggle */
+.reel-slide.video { background: #0f0c0a; cursor: pointer; }
+.reel-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #0f0c0a;
+}
+/* iOS Safari: promote play-btn and sound-btn to their own compositing layers so
+   they stay visible above the native video layer. translateZ(0) only — NO
+   will-change (that held a permanent GPU layer and broke other button anims). */
+.play-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--primary-500);
+  color: var(--ivory);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 0 0 var(--primary-700);
+  z-index: 2;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.25s ease;
+  position: relative;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0);
+}
+.play-btn:active {
+  transform: translateZ(0) translateY(2px);
+  box-shadow: 0 1px 0 0 var(--primary-700);
+}
+.play-btn:focus { outline: none; }
+.play-btn:focus-visible { outline: none; box-shadow: 0 3px 0 0 var(--primary-700); }
+.play-btn svg { width: 22px; height: 22px; }
+.play-btn .icon-play { margin-left: 2px; }
+.play-btn .icon-pause { display: none; }
+/* State classes on parent slide — must keep the parent selector */
+.reel-slide.video.playing .play-btn .icon-play { display: none; }
+.reel-slide.video.playing .play-btn .icon-pause { display: block; }
+.reel-slide.video.btn-hidden .play-btn { opacity: 0; pointer-events: none; }
+
+.sound-btn {
+  position: absolute;
+  top: 18px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 250, 235, 0.22);
+  padding: 0;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--ivory);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  transition: background 0.14s, border-color 0.14s;
+  transform: translateZ(0);
+}
+@media (hover: hover) {
+  .sound-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: rgba(255, 250, 235, 0.35);
+  }
+}
+.sound-btn svg { width: 14px; height: 14px; }
+.sound-btn .sound-off { display: none; }
+/* State class on parent slide */
+.reel-slide.video.muted .sound-btn .sound-on { display: none; }
+.reel-slide.video.muted .sound-btn .sound-off { display: block; }
+
+/* Pagination dots — muted, sits in flow between hero block and body title */
+.reel-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 0 8px;
+  opacity: calc((1 - var(--scroll-progress, 0)) * 0.75);
+  pointer-events: auto;
+}
+
+.reel-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  cursor: pointer;
+  /* Inactive: muted neutral surface */
+  background: var(--neutral-200);
+  box-shadow: 0 1px 0 0 var(--neutral-300);
+  transition: transform 0.14s cubic-bezier(.2,.8,.2,1),
+              box-shadow 0.14s cubic-bezier(.2,.8,.2,1),
+              background 0.14s;
+}
+
+.reel-dot.active {
+  /* Active: muted primary — still indicates but doesn't steal focus */
+  width: 9px;
+  height: 9px;
+  background: var(--primary-300);
+  border-color: transparent;
+  box-shadow: 0 2px 0 0 var(--primary-500);
+}
+
+/* Hero-title: terminal-style marquee visible only in collapsed state */
+.hero-title {
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Jersey 25', var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--primary-500);
+  opacity: clamp(0, calc((var(--scroll-progress, 0) - 0.78) * 4.55), 1);
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.ht-marquee {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ht-text {
+  display: inline-block;
+  animation: ht-scroll 8s linear infinite;
+}
+
+/* Letter-stepped scroll: ~2s each way with pixel-stepped motion, 3s pause at each extreme.
+   Translate tuned for Jersey 25 at 22px with ~30-char title; brings last letter into view. */
+@keyframes ht-scroll {
+  0%     { transform: translateX(0);      animation-timing-function: steps(20, end); }
+  20%    { transform: translateX(-160px); animation-timing-function: step-end; }
+  50%    { transform: translateX(-160px); animation-timing-function: steps(20, end); }
+  70%    { transform: translateX(0);      animation-timing-function: step-end; }
+  100%   { transform: translateX(0); }
+}
+
+.ht-caret {
+  flex-shrink: 0;
+  display: inline-block;
+  width: 7px;
+  height: 10px;
+  margin-left: 4px;
+  background: var(--primary-500);
+  animation: ht-blink 1s steps(2, end) infinite;
+}
+
+@keyframes ht-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Body title fades out as hero-title fades in — reads as one title moving up */
+.title {
+  opacity: calc(1 - var(--scroll-progress, 0));
+}
+
+/* ---------- Overlay back button (compact: 40x40 chip-stack) ---------- */
+
+.back-btn {
+  position: absolute;
+  top: 28px;
+  left: 22px;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: var(--neutral-0);
+  box-shadow: 0 2px 0 0 var(--neutral-300), inset 0 1px 0 rgba(255,255,255,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: transform 0.12s cubic-bezier(.2,.8,.2,1),
+              box-shadow 0.12s cubic-bezier(.2,.8,.2,1);
+}
+
+.back-btn svg { width: 12px; height: 12px; }
+
+@media (hover: hover) {
+  .back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 0 var(--neutral-300), inset 0 1px 0 rgba(255,255,255,1);
+  }
+}
+
+.back-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 var(--neutral-200), inset 0 1px 0 rgba(255,255,255,1);
+  transition-duration: 0.08s;
+}
+
+/* ---------- Page body ---------- */
+
+.body {
+  padding: 0 24px;
+}
+
+.title {
+  position: relative;
+  margin-top: 20px;
+  padding-left: 14px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 30px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--primary-200);
+}
+
+/* ---------- Info card — wraps meta strip + artifact (DS card pattern) ---------- */
+
+.info-card {
+  margin-top: 20px;
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: 0 2px 0 0 rgba(26,20,8,0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Meta chip — DS body text with pixel icons */
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--text-body);
+}
+
+.meta-chip svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  shape-rendering: crispEdges;
+}
+
+.meta-chip.difficulty svg { color: var(--primary-600); }
+.meta-chip.time svg { color: var(--neutral-600); }
+.meta-chip.xp svg { color: var(--primary-500); }
+.meta-chip.xp { color: var(--primary-700); font-weight: 600; }
+
+/* ---------- Lesson list — challenge-card style from DS reference ---------- */
+
+.lesson-list {
+  margin: 20px 0 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 76px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: var(--neutral-0);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-body);
+  font-size: inherit;
+  color: var(--text-body);
+  appearance: none;
+  -webkit-appearance: none;
+  transition: transform 0.14s cubic-bezier(.2,.8,.2,1),
+              box-shadow 0.14s cubic-bezier(.2,.8,.2,1),
+              border-color 0.14s;
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+  width: 100%;
+  box-shadow: 0 5px 0 0 var(--neutral-200);
+}
+
+/* Icon box — left-aligned square, tinted by state */
+.lesson-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--neutral-100);
+  color: var(--neutral-500);
+}
+.lesson-icon svg { width: 22px; height: 22px; }
+
+.lesson-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.lesson-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(13px, 4.1vw, 16px);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson-state {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--text-tertiary);
+}
+
+/* Locked + Completed share the same neutral chip-stack base */
+.lesson-row.locked,
+.lesson-row.completed {
+  background: var(--neutral-0);
+  border-color: var(--border-subtle);
+  box-shadow: 0 5px 0 0 var(--neutral-200);
+}
+.lesson-row.locked .lesson-title,
+.lesson-row.completed .lesson-title { color: var(--text-tertiary); }
+
+/* Locked-only: padlock treatment */
+.lesson-row.locked .lesson-icon {
+  background: var(--neutral-50);
+  color: var(--neutral-400);
+  opacity: 0.72;
+}
+.lesson-row.locked .lesson-icon svg { stroke-width: 1.8; }
+
+/* Completed-only: check treatment */
+.lesson-row.completed .lesson-state { color: var(--text-tertiary); }
+.lesson-row.completed .lesson-icon {
+  background: var(--neutral-100);
+  color: var(--neutral-500);
+}
+
+/* Current — the one highlighted row, chip-stack button style (like DS primary CTA) */
+.lesson-row.current {
+  background: var(--neutral-0);
+  border: none;
+  box-shadow:
+    inset 0 0 0 2px var(--primary-500),
+    0 5px 0 0 var(--primary-500);
+  padding-right: 52px; /* space for hover arrow */
+  overflow: hidden;
+}
+.lesson-row.current .lesson-icon {
+  background: var(--primary-50);
+  color: var(--primary-500);
+}
+.lesson-row.current .lesson-state { color: var(--primary-600); font-weight: 600; }
+
+/* Hint arrow — slides in on hover from LEFT to right, nudges every 5s if held */
+.current-arrow {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  color: var(--primary-500);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-12px, -50%);
+  transition: opacity 0.22s cubic-bezier(.2,.8,.2,1),
+              transform 0.22s cubic-bezier(.2,.8,.2,1);
+}
+.current-arrow svg { width: 24px; height: 24px; }
+
+@keyframes hint-nudge {
+  0%, 85%, 100% { transform: translate(0, -50%); }
+  90% { transform: translate(6px, -50%); }
+  95% { transform: translate(0, -50%); }
+}
+
+/* Hover */
+@media (hover: hover) {
+  .lesson-row:hover:not(.current) {
+    border-color: var(--neutral-300);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 0 0 var(--neutral-300);
+  }
+  .lesson-row.locked:hover .lesson-icon {
+    opacity: 0.9;
+    background: var(--neutral-100);
+  }
+  .lesson-row.current:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 0 0 2px var(--primary-500),
+      0 7px 0 0 var(--primary-600),
+      0 14px 26px -8px rgba(236,110,0,.3);
+  }
+  .lesson-row.current:hover .current-arrow {
+    opacity: 1;
+    transform: translate(0, -50%);
+    animation: hint-nudge 5s ease-in-out 1.4s infinite;
+  }
+}
+
+/* Active — all states press into the stack */
+.lesson-row.current:active {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 0 0 2px var(--primary-500),
+    0 1px 0 0 var(--primary-500);
+  transition-duration: 0.08s;
+}
+.lesson-row:active:not(.current) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 0 var(--neutral-200);
+  transition-duration: 0.08s;
+}
+
+/* ---------- Artifact button (part of screen, dashed, muted when locked) ---------- */
+
+.artifact-btn {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: transparent;
+  border: 1.5px dashed var(--neutral-300);
+  border-radius: var(--radius-md);
+  position: relative;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  min-height: 76px;
+  opacity: 0.8;
+  transition: transform 0.1s cubic-bezier(.2,.8,.2,1),
+              border-color 0.12s,
+              opacity 0.12s;
+}
+
+@media (hover: hover) {
+  .artifact-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary-300);
+    opacity: 1;
+  }
+}
+
+.artifact-btn:active {
+  transform: translateY(1px);
+  transition-duration: 0.06s;
+}
+
+/* Locked artifact: muted title, but keep icon contrast readable */
+.artifact-btn .artifact-title { color: var(--text-tertiary); }
+@media (hover: hover) {
+  .artifact-btn:hover .artifact-title { color: var(--text-body); }
+}
+
+.artifact-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.artifact-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(13px, 4.1vw, 16px);
+  line-height: 1.2;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artifact-unlock {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(11px, 3.4vw, 13px);
+  line-height: 1.3;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* PDF/document icon — soft peach square with strong contrast */
+.artifact-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--primary-100);
+  color: var(--primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.artifact-icon svg { width: 26px; height: 26px; }
+
+/* Lock badge on the icon corner */
+.artifact-lock {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--neutral-0);
+  color: var(--neutral-400);
+  opacity: 0.72;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 1px var(--neutral-200);
+}
+.artifact-lock svg { width: 9px; height: 9px; }
+
+/* ---------- Sticky CTA ---------- */
+
+.sticky-cta-wrap {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 16px 20px calc(56px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--surface-canvas) 60%, rgba(250,248,243,0));
+  pointer-events: none;
+}
+/* Mobile: push Start Mission ~20% lower by shrinking bottom padding. */
+@media (max-width: 500px) {
+  .sticky-cta-wrap {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* iOS fix: eliminate 300ms tap delay and keep :active reliable on all buttons */
+button, a { touch-action: manipulation; }
+
+.sticky-cta {
+  width: 100%;
+  height: 60px;
+  pointer-events: auto;
+  background: var(--primary-500);
+  color: var(--ivory);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(17px, 4.8vw, 20px);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-cta-stack);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 0 16px;
+}
+
+.sticky-cta span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sticky-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 30%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Pixel diagonal sweep — sharp-edged solid band, stepped motion */
+.sticky-cta::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -20%;
+  width: 9%;
+  height: 100%;
+  background: rgba(255, 250, 235, 0.55);
+  transform: skewX(-22deg);
+  pointer-events: none;
+  z-index: 2;
+  animation: shine 4.5s steps(60, end) infinite;
+}
+
+@keyframes shine {
+  0%   { left: -20%; }
+  28%  { left: 115%; }
+  100% { left: 115%; }
+}
+
+.sticky-cta > * { position: relative; z-index: 3; }
+
+@media (hover: hover) {
+  .sticky-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 0 0 var(--primary-700);
+  }
+}
+
+.sticky-cta:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 0 var(--primary-700);
+}
+
+.sticky-cta .arrow { width: 18px; height: 18px; }
+</style>
+</head>
+<body ontouchstart="">
+  <div class="phone" id="phone">
+    <div class="screen">
+      <!-- Hero preview -->
+      <div class="hero">
+        <div class="hero-screen">
+          <div class="reel-slider" id="reelSlider">
+            <div class="reel-slide video" id="videoSlide">
+              <video
+                class="reel-video"
+                id="reelVideo"
+                src="media/preview.mp4"
+                poster="media/preview-poster.jpg"
+                playsinline
+                webkit-playsinline
+                preload="metadata"
+                muted
+                disablePictureInPicture
+                disableRemotePlayback
+                x-webkit-airplay="deny"></video>
+              <button type="button" class="sound-btn" id="soundBtn" aria-label="Toggle sound" aria-pressed="false">
+                <svg class="sound-on" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                  <rect x="2" y="6" width="2" height="4" fill="currentColor"/>
+                  <rect x="4" y="5" width="1" height="6" fill="currentColor"/>
+                  <rect x="5" y="4" width="1" height="8" fill="currentColor"/>
+                  <rect x="6" y="3" width="2" height="10" fill="currentColor"/>
+                  <rect x="10" y="5" width="1" height="2" fill="currentColor"/>
+                  <rect x="10" y="9" width="1" height="2" fill="currentColor"/>
+                  <rect x="11" y="6" width="1" height="4" fill="currentColor"/>
+                  <rect x="12" y="3" width="1" height="2" fill="currentColor"/>
+                  <rect x="12" y="11" width="1" height="2" fill="currentColor"/>
+                  <rect x="13" y="5" width="1" height="6" fill="currentColor"/>
+                </svg>
+                <svg class="sound-off" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                  <rect x="2" y="6" width="2" height="4" fill="currentColor"/>
+                  <rect x="4" y="5" width="1" height="6" fill="currentColor"/>
+                  <rect x="5" y="4" width="1" height="8" fill="currentColor"/>
+                  <rect x="6" y="3" width="2" height="10" fill="currentColor"/>
+                  <rect x="10" y="5" width="1" height="1" fill="currentColor"/>
+                  <rect x="11" y="6" width="1" height="1" fill="currentColor"/>
+                  <rect x="12" y="7" width="1" height="1" fill="currentColor"/>
+                  <rect x="13" y="8" width="1" height="1" fill="currentColor"/>
+                  <rect x="14" y="9" width="1" height="1" fill="currentColor"/>
+                  <rect x="14" y="5" width="1" height="1" fill="currentColor"/>
+                  <rect x="13" y="6" width="1" height="1" fill="currentColor"/>
+                  <rect x="11" y="8" width="1" height="1" fill="currentColor"/>
+                  <rect x="10" y="9" width="1" height="1" fill="currentColor"/>
+                </svg>
+              </button>
+              <button type="button" class="play-btn" id="playBtn" aria-label="Play preview">
+                <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+                <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+              </button>
+            </div>
+            <div class="reel-slide image">
+              <img class="reel-image" src="media/preview-image.jpg" alt="" />
+            </div>
+            <div class="reel-slide text">
+              <div class="brief-heading">MISSION INFO</div>
+              <p class="brief-body">Use Claude AI to analyze your Gmail and build a script that automatically sorts emails into labels — inbox clean, zero manual effort, runs on schedule.</p>
+              <div class="brief-subheading">What you will get:</div>
+              <ul class="brief-list">
+                <li>Working Gmail organizer script</li>
+                <li>Automated triggers — runs every hour</li>
+                <li>Clean inbox across multiple accounts</li>
+                <li>Workflow: analyze → design → automate → maintain</li>
+              </ul>
+            </div>
+          </div>
+          <div class="hero-title" aria-hidden="true">
+            <span class="ht-marquee"><span class="ht-text">Gmail on Autopilot with Claude</span></span>
+            <span class="ht-caret"></span>
+          </div>
+        </div>
+        <button class="back-btn" aria-label="Back to Mission Map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 L9 12 L15 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Pagination dots between hero and body -->
+      <div class="reel-dots" id="reelDots" role="tablist" aria-label="Slide">
+        <button class="reel-dot active" type="button" aria-label="Slide 1" data-slide="0"></button>
+        <button class="reel-dot" type="button" aria-label="Slide 2" data-slide="1"></button>
+        <button class="reel-dot" type="button" aria-label="Slide 3" data-slide="2"></button>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <h1 class="title">Gmail on Autopilot with Claude</h1>
+        <div class="info-card">
+          <div class="meta-strip" role="list">
+            <span class="meta-chip difficulty" role="listitem" title="Builder mission">
+              <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="1" y="6" width="2" height="3" fill="currentColor"/>
+                <rect x="4" y="4" width="2" height="5" fill="currentColor"/>
+                <rect x="7" y="2" width="2" height="7" fill="currentColor"/>
+              </svg>
+              Builder
+            </span>
+            <span class="meta-chip time" role="listitem" title="~20 minutes">
+              <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="3" y="1" width="4" height="1" fill="currentColor"/>
+                <rect x="3" y="8" width="4" height="1" fill="currentColor"/>
+                <rect x="1" y="3" width="1" height="4" fill="currentColor"/>
+                <rect x="8" y="3" width="1" height="4" fill="currentColor"/>
+                <rect x="2" y="2" width="1" height="1" fill="currentColor"/>
+                <rect x="7" y="2" width="1" height="1" fill="currentColor"/>
+                <rect x="2" y="7" width="1" height="1" fill="currentColor"/>
+                <rect x="7" y="7" width="1" height="1" fill="currentColor"/>
+                <rect x="4" y="3" width="1" height="2" fill="currentColor"/>
+                <rect x="4" y="5" width="3" height="1" fill="currentColor"/>
+              </svg>
+              20 min
+            </span>
+            <span class="meta-chip xp" role="listitem" title="+250 XP reward">
+              <svg viewBox="0 0 10 10" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="4" y="0" width="2" height="1" fill="currentColor"/>
+                <rect x="3" y="1" width="4" height="1" fill="currentColor"/>
+                <rect x="2" y="2" width="6" height="1" fill="currentColor"/>
+                <rect x="1" y="3" width="8" height="1" fill="currentColor"/>
+                <rect x="0" y="4" width="10" height="2" fill="currentColor"/>
+                <rect x="1" y="6" width="8" height="1" fill="currentColor"/>
+                <rect x="2" y="7" width="6" height="1" fill="currentColor"/>
+                <rect x="3" y="8" width="4" height="1" fill="currentColor"/>
+                <rect x="4" y="9" width="2" height="1" fill="currentColor"/>
+              </svg>
+              250 XP
+            </span>
+          </div>
+
+        </div>
+
+        <button type="button" class="artifact-btn" aria-label="Reward: Inbox Playbook, unlocks after all lessons">
+          <div class="artifact-body">
+            <span class="artifact-title">Inbox Playbook</span>
+            <span class="artifact-unlock">Finish all 6 lessons to unlock</span>
+          </div>
+          <div class="artifact-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3 H14 L19 8 V20 a1 1 0 0 1 -1 1 H6 a1 1 0 0 1 -1 -1 V4 a1 1 0 0 1 1 -1 Z"/>
+              <path d="M14 3 V8 H19"/>
+              <path d="M8 13 H16 M8 16 H14"/>
+            </svg>
+            <div class="artifact-lock" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11 V8 a4 4 0 0 1 8 0 v3"/></svg>
+            </div>
+          </div>
+        </button>
+
+        <ul class="lesson-list">
+          <li>
+            <button type="button" class="lesson-row completed" aria-label="Lesson 1 of 6, completed: Sort priority mail with AI">
+              <span class="lesson-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"/></svg>
+              </span>
+              <span class="lesson-body">
+                <span class="lesson-title">Sort priority mail with AI</span>
+                <span class="lesson-state">Completed · Lesson 1/6</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lesson-row current" aria-label="Lesson 2 of 6, next: Draft replies in your voice">
+              <span class="lesson-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg>
+              </span>
+              <span class="lesson-body">
+                <span class="lesson-title">Draft replies in your voice</span>
+                <span class="lesson-state">Next · Lesson 2/6</span>
+              </span>
+              <span class="current-arrow" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lesson-row locked" aria-label="Lesson 3 of 6, locked: Build a follow-up rule">
+              <span class="lesson-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11 V8 a4 4 0 0 1 8 0 v3"/></svg>
+              </span>
+              <span class="lesson-body">
+                <span class="lesson-title">Build a follow-up rule</span>
+                <span class="lesson-state">Locked · 5 min</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lesson-row locked" aria-label="Lesson 4 of 6, locked: Connect Gmail + your AI helper">
+              <span class="lesson-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11 V8 a4 4 0 0 1 8 0 v3"/></svg>
+              </span>
+              <span class="lesson-body">
+                <span class="lesson-title">Connect Gmail + your AI helper</span>
+                <span class="lesson-state">Locked · 4 min</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lesson-row locked" aria-label="Lesson 5 of 6, locked: Schedule smart digests">
+              <span class="lesson-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11 V8 a4 4 0 0 1 8 0 v3"/></svg>
+              </span>
+              <span class="lesson-body">
+                <span class="lesson-title">Schedule smart digests</span>
+                <span class="lesson-state">Locked · 6 min</span>
+              </span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="lesson-row locked" aria-label="Lesson 6 of 6, locked: Review and refine your inbox system">
+              <span class="lesson-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11 V8 a4 4 0 0 1 8 0 v3"/></svg>
+              </span>
+              <span class="lesson-body">
+                <span class="lesson-title">Review &amp; refine your inbox system</span>
+                <span class="lesson-state">Locked · 3 min</span>
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Sticky CTA -->
+    <div class="sticky-cta-wrap">
+      <button class="sticky-cta">
+        <span>Start Mission</span>
+        <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 H19 M13 6 L19 12 L13 18"/></svg>
+      </button>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const screen = document.querySelector('.screen');
+      if (!screen) return;
+      const root = document.documentElement;
+      const readShrink = () => {
+        const full = parseFloat(getComputedStyle(root).getPropertyValue('--hero-full')) || 468;
+        const min = parseFloat(getComputedStyle(root).getPropertyValue('--hero-min')) || 96;
+        return Math.max(1, full - min);
+      };
+      let shrinkDistance = readShrink();
+      let ticking = false;
+      let lastP = -1;
+      const update = () => {
+        const raw = screen.scrollTop / shrinkDistance;
+        const clamped = Math.min(1, Math.max(0, raw));
+        const p = Math.round(clamped * 100) / 100;
+        if (p !== lastP) {
+          screen.style.setProperty('--scroll-progress', p);
+          // Pause video once hero collapses meaningfully — higher threshold
+          // so a finger-tap's micro-scroll does not instantly pause playback.
+          if (p > 0.35 && lastP <= 0.35) {
+            const v = document.getElementById('reelVideo');
+            if (v && !v.paused) v.pause();
+          }
+          lastP = p;
+        }
+        ticking = false;
+      };
+      screen.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(update);
+          ticking = true;
+        }
+      }, { passive: true });
+      window.addEventListener('resize', () => {
+        shrinkDistance = readShrink();
+        update();
+      });
+      update();
+    })();
+
+    /* Reels carousel — sync active dot with slide scroll position; click-to-go */
+    (() => {
+      const slider = document.getElementById('reelSlider');
+      const dotsWrap = document.getElementById('reelDots');
+      if (!slider || !dotsWrap) return;
+      const dots = Array.from(dotsWrap.querySelectorAll('.reel-dot'));
+      let activeIdx = 0;
+      let ticking = false;
+
+      const setActive = (i) => {
+        if (i === activeIdx) return;
+        // Pause video when swiping away from slide 0 (video slide)
+        if (activeIdx === 0 && i !== 0) {
+          const v = document.getElementById('reelVideo');
+          if (v && !v.paused) v.pause();
+        }
+        activeIdx = i;
+        dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+      };
+
+      const update = () => {
+        const idx = Math.round(slider.scrollLeft / slider.clientWidth);
+        setActive(Math.min(dots.length - 1, Math.max(0, idx)));
+        ticking = false;
+      };
+
+      slider.addEventListener('scroll', () => {
+        if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+      }, { passive: true });
+
+      dots.forEach((d, i) => {
+        d.addEventListener('click', () => {
+          slider.scrollTo({ left: i * slider.clientWidth, behavior: 'smooth' });
+        });
+      });
+
+      const videoSlide = document.getElementById('videoSlide');
+      const video = document.getElementById('reelVideo');
+      const playBtn = document.getElementById('playBtn');
+      const soundBtn = document.getElementById('soundBtn');
+
+      if (videoSlide && video && playBtn && soundBtn) {
+        let hideTimer = null;
+        const HIDE_DELAY = 3000;
+
+        videoSlide.classList.add('muted');
+        video.muted = true;
+
+        const clearHide = () => { if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; } };
+        const scheduleHide = () => {
+          clearHide();
+          hideTimer = setTimeout(() => videoSlide.classList.add('btn-hidden'), HIDE_DELAY);
+        };
+        const showBtn = () => {
+          videoSlide.classList.remove('btn-hidden');
+          clearHide();
+        };
+
+        const doPlay = () => {
+          showBtn();
+          if (video.muted && !videoSlide.dataset.soundInitialized) {
+            video.muted = false;
+            videoSlide.classList.remove('muted');
+            soundBtn.setAttribute('aria-pressed', 'true');
+            videoSlide.dataset.soundInitialized = '1';
+          }
+          const p = video.play();
+          if (p && typeof p.catch === 'function') {
+            p.catch(() => {
+              if (!video.muted) {
+                video.muted = true;
+                videoSlide.classList.add('muted');
+                soundBtn.setAttribute('aria-pressed', 'false');
+                video.play().catch(() => {});
+              }
+            });
+          }
+        };
+
+        const doPause = () => {
+          showBtn();
+          video.pause();
+        };
+
+        video.addEventListener('play', () => {
+          videoSlide.classList.add('playing');
+          showBtn();
+          scheduleHide();
+        });
+        video.addEventListener('pause', () => {
+          videoSlide.classList.remove('playing');
+          showBtn();
+        });
+        video.addEventListener('ended', () => {
+          videoSlide.classList.remove('playing');
+          showBtn();
+          try { video.currentTime = 0; } catch (e) {}
+        });
+
+        playBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (video.paused) doPlay(); else doPause();
+        });
+
+        videoSlide.addEventListener('click', (e) => {
+          if (e.target.closest('.sound-btn') || e.target.closest('.play-btn')) return;
+          if (video.paused) doPlay(); else doPause();
+        });
+
+        soundBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showBtn();
+          if (video.muted || video.paused) scheduleHide();
+          video.muted = !video.muted;
+          videoSlide.classList.toggle('muted', video.muted);
+          soundBtn.setAttribute('aria-pressed', String(!video.muted));
+          videoSlide.dataset.soundInitialized = '1';
+          if (!video.paused) scheduleHide();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
